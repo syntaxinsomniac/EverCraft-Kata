@@ -71,6 +71,18 @@ public class CharacterTest {
 		Assert.assertEquals(3, worstCharacter.hitPoints);
 	
 	}
+	
+	@Test
+	public void opponentWithHighArmorClassIsHardToHit(){
+	
+		worstCharacter.armorClass = 20;
+		int dieRoll = 11;
+		
+		mainCharacter.attack(worstCharacter,dieRoll);
+		
+		Assert.assertEquals(5, worstCharacter.hitPoints);
+	
+	}
 
 	@Test
 	public void abilityScoresDefaultToTen(){
@@ -82,5 +94,33 @@ public class CharacterTest {
 		Assert.assertEquals(10, mainCharacter.getCharisma());
 	}
 	
+	@Test
+	public void strengthModifierAddedToAttackAndDamageOnNormalHit() {
+		// 17 should have +3 modifier
+		mainCharacter = new Character(17, 10, 10, 10, 10, 10);
+		
+		mainCharacter.attack(worstCharacter, 7);
+		
+		Assert.assertEquals(1, worstCharacter.hitPoints);
+	}
+	
+	@Test
+	public void strengthModifierDoubledForAttackAndDamageOnCriticalHit() {
+		// 17 should have +3 modifier
+		mainCharacter = new Character(17, 10, 10, 10, 10, 10);
+		
+		mainCharacter.attack(worstCharacter, 20);
+		
+		Assert.assertEquals(-3, worstCharacter.hitPoints);
+	}
+	
+	@Test
+	public void attackDamageCannotBeModifiedBelowOne() {
+		mainCharacter = new Character(1, 10, 10, 10, 10, 10);
+		
+		mainCharacter.attack(worstCharacter, 19);
+		
+		Assert.assertEquals(4, worstCharacter.hitPoints);
+	}
 	
 }
