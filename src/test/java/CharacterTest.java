@@ -16,8 +16,7 @@ public class CharacterTest {
 	}
 
 	@Test
-	public void testCanSetNGetName(){
-		
+	public void testCanSetNGetName(){	
 		mainCharacter.setName("Jandrew");
 		
 		Assert.assertEquals("Jandrew", mainCharacter.getName());
@@ -25,7 +24,6 @@ public class CharacterTest {
 	
 	@Test
 	public void testCanSetNGetAlignment(){  //uses the enum you made in Alignment.java
-		
 		mainCharacter.setAlignment(Alignment.EVIL);
 		
 		Assert.assertEquals(Alignment.EVIL, mainCharacter.getAlignment());
@@ -46,8 +44,7 @@ public class CharacterTest {
 		
 		mainCharacter.attack(worstCharacter,dieRoll);
 		
-		Assert.assertEquals(4, worstCharacter.hitPoints);
-	
+		assertHpLost(1, worstCharacter);
 	}
 	
 	@Test
@@ -57,8 +54,7 @@ public class CharacterTest {
 		
 		mainCharacter.attack(worstCharacter,dieRoll);
 		
-		Assert.assertEquals(5, worstCharacter.hitPoints);
-	
+		assertHpLost(0, worstCharacter);
 	}
 	
 	@Test
@@ -68,8 +64,7 @@ public class CharacterTest {
 		
 		mainCharacter.attack(worstCharacter,dieRoll);
 		
-		Assert.assertEquals(3, worstCharacter.hitPoints);
-	
+		assertHpLost(2, worstCharacter);
 	}
 	
 	@Test
@@ -80,8 +75,7 @@ public class CharacterTest {
 		
 		mainCharacter.attack(worstCharacter,dieRoll);
 		
-		Assert.assertEquals(5, worstCharacter.hitPoints);
-	
+		assertHpLost(0, worstCharacter);
 	}
 
 	@Test
@@ -101,7 +95,7 @@ public class CharacterTest {
 		
 		mainCharacter.attack(worstCharacter, 7);
 		
-		Assert.assertEquals(1, worstCharacter.hitPoints);
+		assertHpLost(4, worstCharacter);
 	}
 	
 	@Test
@@ -111,7 +105,7 @@ public class CharacterTest {
 		
 		mainCharacter.attack(worstCharacter, 20);
 		
-		Assert.assertEquals(-3, worstCharacter.hitPoints);
+		assertHpLost(8, worstCharacter);
 	}
 	
 	@Test
@@ -120,7 +114,145 @@ public class CharacterTest {
 		
 		mainCharacter.attack(worstCharacter, 19);
 		
-		Assert.assertEquals(4, worstCharacter.hitPoints);
+		assertHpLost(1, worstCharacter);
 	}
+	
+	@Test
+	public void criticalDamageCannotBeModifiedBelowOne() {
+		mainCharacter = new Character(1, 10, 10, 10, 10, 10);
+		
+		mainCharacter.attack(worstCharacter, 20);
+		
+		assertHpLost(1, worstCharacter);
+	}
+	
+	@Test
+	public void dexterityModifierAddedToArmor() {
+		mainCharacter = new Character(10, 17, 10, 10, 10, 10);
+		
+		Assert.assertEquals(13, mainCharacter.armorClass);
+	}
+	
+	@Test
+	public void constitutionModifierAddedToHitPoints() {
+		mainCharacter = new Character(10, 10, 17, 10, 10, 10);
+		
+		Assert.assertEquals(8, mainCharacter.hitPoints);
+	}
+	
+	@Test
+	public void hitpointsNeverLessThanOne() {
+		mainCharacter = new Character(10, 10, 1, 10, 10, 10);
+		
+		Assert.assertEquals(1, mainCharacter.hitPoints);
+	}
+	
+	@Test
+	public void characterBeginsWithZeroXp() {
+		Assert.assertEquals(0, mainCharacter.xp);
+	}
+	
+	@Test
+	public void onSuccessfulAttackCharacterGains10Xp() {
+		mainCharacter.attack(worstCharacter, 10);
+		Assert.assertEquals(10, mainCharacter.xp);
+	}
+	
+	@Test
+	public void onCriticalSuccessfulAttackCharacterGains10Xp() {
+		mainCharacter.attack(worstCharacter, 20);
+		Assert.assertEquals(10, mainCharacter.xp);
+	}
+
+	@Test
+	public void onMissNoXpGained() {
+		mainCharacter.attack(worstCharacter, 1);
+		Assert.assertEquals(0, mainCharacter.xp);
+	}
+	
+	@Test
+	public void defaultLevelIsOne() {
+		Assert.assertEquals(1, mainCharacter.level);
+	}
+	
+	@Test
+	public void characterLevelsUpEvery1000Xp(){
+		levelUp(mainCharacter);
+		Assert.assertEquals(2, mainCharacter.level);
+		
+		levelUp(mainCharacter);
+		Assert.assertEquals(3, mainCharacter.level);
+	}
+	
+	@Test
+	public void hitPointsIncreaseByFiveWithLevelUp(){
+		levelUp(mainCharacter);
+		
+		Assert.assertEquals(10, mainCharacter.hitPoints);
+	}
+	
+	@Test
+	public void constitutionModifierAddedToLevelUpHp(){
+		mainCharacter = new Character(10,10,17,10,10,10);
+		levelUp(mainCharacter);
+		
+		Assert.assertEquals(16, mainCharacter.hitPoints);
+	}
+	
+	@Test
+	public void levelingUpGivesAtLeastAHitpoint(){
+		mainCharacter = new Character(10,10,1,10,10,10);
+		levelUp(mainCharacter);
+		
+		Assert.assertEquals(2, mainCharacter.hitPoints);
+	}
+	
+	@Test
+	public void characterHasPlusOneAttackAtLevelTwo() {
+		levelUp(mainCharacter);
+		
+		mainCharacter.attack(worstCharacter, 9);
+		
+		assertHpLost(1, worstCharacter);
+	}
+	
+	@Test
+	public void canSetAndGetCharacterClass() {
+		mainCharacter.setCharacterClass(CharacterClass.FIGHTER);
+		
+		Assert.assertEquals(CharacterClass.FIGHTER, mainCharacter.getCharacterClass());
+	}
+	
+	@Test
+	public void fighterGainsOneEveryLevelToAttackRollBonus() {
+		mainCharacter.setCharacterClass(CharacterClass.FIGHTER);
+		
+		levelUp(mainCharacter);
+		mainCharacter.attack(worstCharacter, 9);
+		assertHpLost(1, worstCharacter);
+		
+		worstCharacter = new Character();
+		levelUp(mainCharacter);
+		
+		mainCharacter.attack(worstCharacter, 8);
+		assertHpLost(1, worstCharacter);
+	}
+	
+	@Test
+	public void fighterStartsWithTenHitpoints() {
+		mainCharacter = new Character(CharacterClass.FIGHTER);
+		
+		Assert.assertEquals(10, mainCharacter.hitPoints);
+	}
+	
+	private void levelUp(Character character){
+		for(int i = 0; i < 100; i++)
+			character.attack(new Character(), 10);
+	}
+	
+	private void assertHpLost(int hpLost, Character character) {
+		Assert.assertEquals(5 - hpLost, character.hitPoints);
+	}
+	
 	
 }
