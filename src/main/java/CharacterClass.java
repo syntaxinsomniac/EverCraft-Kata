@@ -1,3 +1,3 @@
 public enum CharacterClass {
-	FIGHTER
+	UNCLASSED, FIGHTER, ROGUE
 }

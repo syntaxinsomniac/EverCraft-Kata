@@ -1,4 +1,5 @@
 import org.junit.Test; //to use @Test
+import org.junit.Ignore;
 import org.junit.Before;
 import org.junit.Assert; //to use assertEquals to make sure things are equal
 
@@ -91,7 +92,7 @@ public class CharacterTest {
 	@Test
 	public void strengthModifierAddedToAttackAndDamageOnNormalHit() {
 		// 17 should have +3 modifier
-		mainCharacter = new Character(17, 10, 10, 10, 10, 10);
+		mainCharacter = new Character(CharacterClass.UNCLASSED, 17, 10, 10, 10, 10, 10);
 		
 		mainCharacter.attack(worstCharacter, 7);
 		
@@ -101,7 +102,7 @@ public class CharacterTest {
 	@Test
 	public void strengthModifierDoubledForAttackAndDamageOnCriticalHit() {
 		// 17 should have +3 modifier
-		mainCharacter = new Character(17, 10, 10, 10, 10, 10);
+		mainCharacter = new Character(CharacterClass.UNCLASSED, 17, 10, 10, 10, 10, 10);
 		
 		mainCharacter.attack(worstCharacter, 20);
 		
@@ -110,7 +111,7 @@ public class CharacterTest {
 	
 	@Test
 	public void attackDamageCannotBeModifiedBelowOne() {
-		mainCharacter = new Character(1, 10, 10, 10, 10, 10);
+		mainCharacter = new Character(CharacterClass.UNCLASSED, 1, 10, 10, 10, 10, 10);
 		
 		mainCharacter.attack(worstCharacter, 19);
 		
@@ -119,7 +120,7 @@ public class CharacterTest {
 	
 	@Test
 	public void criticalDamageCannotBeModifiedBelowOne() {
-		mainCharacter = new Character(1, 10, 10, 10, 10, 10);
+		mainCharacter = new Character(CharacterClass.UNCLASSED, 1, 10, 10, 10, 10, 10);
 		
 		mainCharacter.attack(worstCharacter, 20);
 		
@@ -128,21 +129,21 @@ public class CharacterTest {
 	
 	@Test
 	public void dexterityModifierAddedToArmor() {
-		mainCharacter = new Character(10, 17, 10, 10, 10, 10);
+		mainCharacter = new Character(CharacterClass.UNCLASSED, 10, 17, 10, 10, 10, 10);
 		
 		Assert.assertEquals(13, mainCharacter.armorClass);
 	}
 	
 	@Test
 	public void constitutionModifierAddedToHitPoints() {
-		mainCharacter = new Character(10, 10, 17, 10, 10, 10);
+		mainCharacter = new Character(CharacterClass.UNCLASSED, 10, 10, 17, 10, 10, 10);
 		
 		Assert.assertEquals(8, mainCharacter.hitPoints);
 	}
 	
 	@Test
 	public void hitpointsNeverLessThanOne() {
-		mainCharacter = new Character(10, 10, 1, 10, 10, 10);
+		mainCharacter = new Character(CharacterClass.UNCLASSED, 10, 10, 1, 10, 10, 10);
 		
 		Assert.assertEquals(1, mainCharacter.hitPoints);
 	}
@@ -193,7 +194,7 @@ public class CharacterTest {
 	
 	@Test
 	public void constitutionModifierAddedToLevelUpHp(){
-		mainCharacter = new Character(10,10,17,10,10,10);
+		mainCharacter = new Character(CharacterClass.UNCLASSED, 10,10,17,10,10,10);
 		levelUp(mainCharacter);
 		
 		Assert.assertEquals(16, mainCharacter.hitPoints);
@@ -201,7 +202,7 @@ public class CharacterTest {
 	
 	@Test
 	public void levelingUpGivesAtLeastAHitpoint(){
-		mainCharacter = new Character(10,10,1,10,10,10);
+		mainCharacter = new Character(CharacterClass.UNCLASSED, 10,10,1,10,10,10);
 		levelUp(mainCharacter);
 		
 		Assert.assertEquals(2, mainCharacter.hitPoints);
@@ -240,9 +241,49 @@ public class CharacterTest {
 	
 	@Test
 	public void fighterStartsWithTenHitpoints() {
-		mainCharacter = new Character(CharacterClass.FIGHTER);
+		mainCharacter = new Character(CharacterClass.FIGHTER, 10, 10, 10, 10, 10, 10);
 		
 		Assert.assertEquals(10, mainCharacter.hitPoints);
+	}
+	
+	@Test
+	public void rogueDoesTripleDamageOnCriticalHit() {
+		mainCharacter = new Character(CharacterClass.ROGUE, 10, 10, 10, 10, 10, 10);
+		mainCharacter.attack(worstCharacter, 20);
+		assertHpLost(3, worstCharacter);
+	}
+	
+	@Test
+	public void rogueIgnoresEnemyDexterityACBonusWhenAttacking() {
+		mainCharacter = new Character(CharacterClass.ROGUE, 10, 10, 10, 10, 10, 10);
+		worstCharacter = new Character(CharacterClass.UNCLASSED, 10,17,10,10,10,10);
+		
+		mainCharacter.attack(worstCharacter, 10);
+		
+		assertHpLost(1, worstCharacter);
+	}
+
+	@Test
+	public void rogueAttacksNegativeDexterityModifierNormally() {
+		mainCharacter = new Character(CharacterClass.ROGUE, 10, 10, 10, 10, 10, 10);
+		worstCharacter = new Character(CharacterClass.UNCLASSED, 10,1,10,10,10,10);
+		
+		mainCharacter.attack(worstCharacter, 4);
+		
+		assertHpLost(0, worstCharacter);
+		
+		mainCharacter.attack(worstCharacter, 5);
+		
+		assertHpLost(1, worstCharacter);
+	}
+	
+	@Test
+	public void rogueAddsDexModifierToAttacksInsteadOfStrength() {
+		mainCharacter = new Character(CharacterClass.ROGUE, 10, 16, 10, 10, 10, 10);
+		
+		mainCharacter.attack(worstCharacter, 7);
+		
+		assertHpLost(1, worstCharacter); //jesse's turn to pass test
 	}
 	
 	private void levelUp(Character character){
@@ -251,7 +292,7 @@ public class CharacterTest {
 	}
 	
 	private void assertHpLost(int hpLost, Character character) {
-		Assert.assertEquals(5 - hpLost, character.hitPoints);
+		Assert.assertEquals("Mismatch in expected HP", 5 - hpLost, character.hitPoints);
 	}
 	
 	
