@@ -1,11 +1,12 @@
 public class Character {
 	private String name;
 	private Alignment alignment; //enum you made in Alignment.java
-	private CharacterClass characterClass;
+	private CharacterClass characterClass = CharacterClass.UNCLASSED;
 	private int strength = 10, dexterity = 10, constitution = 10, wisdom = 10, intelligence = 10, charisma = 10;
 	
 	public int armorClass = 10;
 	public int hitPoints = 5;
+	public int maxHitPoints = 5;
 	public int xp = 0;
 	public int level = 1;
 	
@@ -21,23 +22,8 @@ public class Character {
 		this.characterClass = characterClass;
 		this.armorClass += getModifierFor(dexterity);
 		this.hitPoints = this.getHitpointsPerLevel();
+		this.maxHitPoints = this.getHitpointsPerLevel();
 	}
-	/*public Character(int strength, int dexterity, int constitution, int wisdom, int intelligence, int charisma){
-		this.strength = strength;
-		this.dexterity = dexterity;
-		this.constitution = constitution;
-		this.wisdom = wisdom;
-		this.intelligence = intelligence;
-		this.charisma = charisma;
-		this.armorClass += getModifierFor(dexterity);
-		this.hitPoints = this.getHitpointsPerLevel();
-	}
-	
-	public Character(CharacterClass characterClass){
-		this.characterClass = characterClass;
-		this.hitPoints = this.getHitpointsPerLevel();
-		this.armorClass += getModifierFor(dexterity);
-	}*/
 	
 	public void attack(Character opponent, int dieRoll){
 		if (dieRoll == 20) {
@@ -52,30 +38,47 @@ public class Character {
 		}
 	}
 	
+	private boolean attackHits(Character opponent, int dieRoll) {
+		int levelDieBonus = characterClass == CharacterClass.FIGHTER ? level - 1 : level/2;
+		return dieRoll + levelDieBonus + attackModifier() >= opponent.armorClassVersus(this);
+	}
+	
+	private int attackModifier() {
+		return characterClass == CharacterClass.ROGUE ? getModifierFor(dexterity) : getModifierFor(strength);
+	}
+	
 	private int baseDamage() {
-		return 1 + getModifierFor(strength);
+		int baseDamage = characterClass == CharacterClass.MONK ? 3 : 1;
+		return baseDamage + attackModifier();
 	}
 	
 	private void checkAndUpdateLevel() {
 		int previousLevel = level;
 		level = xp/1000 + 1;
 		boolean levelUp = level > previousLevel;
-		if (levelUp)
+		if (levelUp) {
 			hitPoints += getHitpointsPerLevel();
+			maxHitPoints +=getHitpointsPerLevel();
+		}
 	}
 	
 	private int getHitpointsPerLevel() {
-		int baseHp = characterClass == CharacterClass.FIGHTER ? 10 : 5;
-		return Math.max(baseHp + getModifierFor(constitution), 1);
+		return Math.max(baseHp() + getModifierFor(constitution), 1);
+	}
+	
+	private int baseHp() {
+		switch(characterClass){
+		case FIGHTER: 
+			return 10;
+		case MONK:
+			return 6;
+		default:
+			return 5;
+		}
 	}
 	
 	private int getModifierFor(int ability){
 		return ability/2 - 5;
-	}
-	
-	private boolean attackHits(Character opponent, int dieRoll) {
-		int levelDieBonus = characterClass == CharacterClass.FIGHTER ? level - 1 : level/2;
-		return dieRoll + levelDieBonus + getModifierFor(strength) >= opponent.armorClassVersus(this);
 	}
 	
 	private int armorClassVersus(Character attacker){
@@ -95,6 +98,8 @@ public class Character {
 	};
 	
 	public void setAlignment(Alignment alignment){
+		if (characterClass == CharacterClass.ROGUE && alignment == Alignment.GOOD)
+			throw new IllegalStateException("Rogues cannot be good!");
 		this.alignment = alignment; //private alignment = one specific to method
 	};
 	
