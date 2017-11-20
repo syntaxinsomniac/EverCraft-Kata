@@ -9,12 +9,20 @@ public class CharacterTest {
 
 	Character mainCharacter;
 	Character worstCharacter;
+	Character worstCharacter2;
+	Character worstCharacter3;
+	Character worstCharacter4;
+	Character worstCharacter5;
 	
 	@Before
 	public void setup(){
 		
 		mainCharacter = new Character();
 		worstCharacter = new Character();
+		worstCharacter2 = new Character();
+		worstCharacter3 = new Character();
+		worstCharacter4 = new Character();
+		worstCharacter5 = new Character();
 		
 	}
 
@@ -331,7 +339,42 @@ public class CharacterTest {
 		
 		mainCharacter.attack(worstCharacter, 13);
 		
-		assertHpLost(1, worstCharacter); //jesse must make test pass
+		assertHpLost(1, worstCharacter);
+	}
+	
+	@Test
+	public void monkAttackRollIncreasedByOneEvery2ndAnd3rdLevel() {
+		mainCharacter = new Character(CharacterClass.MONK, 10, 10, 10, 10, 10, 10);
+		
+		levelUp(mainCharacter); //level 2
+		mainCharacter.attack(worstCharacter, 9);
+		
+		assertHpLost(3, worstCharacter);
+		
+		levelUp(mainCharacter); //level 3
+		mainCharacter.attack(worstCharacter2, 8);
+		
+		assertHpLost(3, worstCharacter2);
+		
+		levelUp(mainCharacter); //level 4
+		mainCharacter.attack(worstCharacter3, 7);
+		
+		assertHpLost(0, worstCharacter3);
+		
+		levelUp(mainCharacter); //level 5
+		mainCharacter.attack(worstCharacter3, 7);
+		
+		assertHpLost(3, worstCharacter3);
+		
+		levelUp(mainCharacter); //level 6
+		mainCharacter.attack(worstCharacter4, 6);
+		
+		assertHpLost(3, worstCharacter4);
+		
+		levelUp(mainCharacter); //level 7
+		mainCharacter.attack(worstCharacter5, 5);
+		
+		assertHpLost(0, worstCharacter5);  //andrew must make test pass
 	}
 	
 	private void levelUp(Character character){

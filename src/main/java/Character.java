@@ -20,7 +20,7 @@ public class Character {
 		this.intelligence = intelligence;
 		this.charisma = charisma;
 		this.characterClass = characterClass;
-		this.armorClass += getModifierFor(dexterity);
+		this.armorClass = characterClass == CharacterClass.MONK ? (armorClass + getModifierFor(wisdom)) : (armorClass + getModifierFor(dexterity));
 		this.hitPoints = this.getHitpointsPerLevel();
 		this.maxHitPoints = this.getHitpointsPerLevel();
 	}
