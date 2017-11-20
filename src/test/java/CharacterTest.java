@@ -359,12 +359,12 @@ public class CharacterTest {
 		levelUp(mainCharacter); //level 4
 		mainCharacter.attack(worstCharacter3, 7);
 		
-		assertHpLost(0, worstCharacter3);
+		assertHpLost(3, worstCharacter3);
 		
 		levelUp(mainCharacter); //level 5
-		mainCharacter.attack(worstCharacter3, 7);
+		mainCharacter.attack(worstCharacter4, 6);
 		
-		assertHpLost(3, worstCharacter3);
+		assertHpLost(0, worstCharacter4);
 		
 		levelUp(mainCharacter); //level 6
 		mainCharacter.attack(worstCharacter4, 6);

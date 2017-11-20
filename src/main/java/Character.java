@@ -40,6 +40,12 @@ public class Character {
 	
 	private boolean attackHits(Character opponent, int dieRoll) {
 		int levelDieBonus = characterClass == CharacterClass.FIGHTER ? level - 1 : level/2;
+		if (characterClass == CharacterClass.MONK) {
+			levelDieBonus = 0;
+			for (int i = 1; i <= level; i++)
+				if (i % 2 == 0 || i % 3 == 0)
+					levelDieBonus++;
+		}
 		return dieRoll + levelDieBonus + attackModifier() >= opponent.armorClassVersus(this);
 	}
 	
