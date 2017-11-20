@@ -39,16 +39,27 @@ public class Character {
 	}
 	
 	private boolean attackHits(Character opponent, int dieRoll) {
-		int levelDieBonus = characterClass == CharacterClass.FIGHTER ? level - 1 : level/2;
-		if (characterClass == CharacterClass.MONK) {
-			levelDieBonus = 0;
-			for (int i = 1; i <= level; i++)
-				if (i % 2 == 0 || i % 3 == 0)
-					levelDieBonus++;
-		}
-		return dieRoll + levelDieBonus + attackModifier() >= opponent.armorClassVersus(this);
+		return dieRoll + getLevelBonus() + attackModifier() >= opponent.armorClassVersus(this);
 	}
-	
+
+	private int getLevelBonus() {
+		int levelDieBonus = 0;
+		switch (characterClass) {
+			case FIGHTER:
+				levelDieBonus = level - 1;
+				break;
+			case MONK:
+				for (int i = 1; i <= level; i++)
+					if (i % 2 == 0 || i % 3 == 0)
+						levelDieBonus++;
+				break;
+			default:
+				levelDieBonus = level / 2;
+				break;
+		}
+		return levelDieBonus;
+	}
+
 	private int attackModifier() {
 		return characterClass == CharacterClass.ROGUE ? getModifierFor(dexterity) : getModifierFor(strength);
 	}
