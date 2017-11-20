@@ -376,7 +376,20 @@ public class CharacterTest {
 		
 		assertHpLost(0, worstCharacter5);  //andrew must make test pass
 	}
-	
+
+	@Test
+	public void paladinHasEightHitPointsPerLevel() throws Exception {
+		mainCharacter = new Character(CharacterClass.PALADIN, 10, 10, 10, 10, 10, 10);
+
+		assertEquals(8, mainCharacter.hitPoints);
+		assertEquals(8, mainCharacter.maxHitPoints);
+
+		levelUp(mainCharacter);
+
+		assertEquals(16, mainCharacter.hitPoints);
+		assertEquals(16, mainCharacter.maxHitPoints);
+	}
+
 	private void levelUp(Character character){
 		for(int i = 0; i < 100; i++)
 			character.attack(new Character(), 10);
