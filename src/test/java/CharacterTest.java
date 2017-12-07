@@ -228,15 +228,8 @@ public class CharacterTest {
 	}
 	
 	@Test
-	public void canSetAndGetCharacterClass() {
-		mainCharacter.setCharacterClass(CharacterClass.FIGHTER);
-		
-		assertEquals(CharacterClass.FIGHTER, mainCharacter.getCharacterClass());
-	}
-	
-	@Test
 	public void fighterGainsOneEveryLevelToAttackRollBonus() {
-		mainCharacter.setCharacterClass(CharacterClass.FIGHTER);
+		mainCharacter = new Character(CharacterClass.FIGHTER, 10, 10, 10, 10, 10, 10);
 		
 		levelUp(mainCharacter);
 		mainCharacter.attack(worstCharacter, 9);
