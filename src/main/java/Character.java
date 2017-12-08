@@ -1,7 +1,12 @@
+import classes.CharacterClass;
+import classes.MonkClass;
+import classes.NoClass;
+import classes.RogueClass;
+
 public class Character {
 	private String name;
 	private Alignment alignment; //enum you made in Alignment.java
-	private CharacterClass characterClass = CharacterClass.UNCLASSED;
+	private CharacterClass characterClass = new NoClass();
 	private int strength = 10, dexterity = 10, constitution = 10, wisdom = 10, intelligence = 10, charisma = 10;
 	
 	public int armorClass = 10;
@@ -20,15 +25,15 @@ public class Character {
 		this.intelligence = intelligence;
 		this.charisma = charisma;
 		this.characterClass = characterClass;
-		this.armorClass = characterClass == CharacterClass.MONK ? (armorClass + getModifierFor(wisdom)) : (armorClass + getModifierFor(dexterity));
+		// this one is a bit tricky to do
+		this.armorClass = characterClass instanceof MonkClass ? (armorClass + getModifierFor(wisdom)) : (armorClass + getModifierFor(dexterity));
 		this.hitPoints = this.getHitpointsPerLevel();
 		this.maxHitPoints = this.getHitpointsPerLevel();
 	}
 	
 	public void attack(Character opponent, int dieRoll){
 		if (dieRoll == 20) {
-			int critMultiplier = characterClass == CharacterClass.ROGUE ? 3 : 2;
-			opponent.hitPoints = opponent.hitPoints - Math.max(critMultiplier * baseDamage(), 1);
+			opponent.hitPoints = opponent.hitPoints - Math.max(characterClass.critMultiplier() * baseDamage(), 1);
 			xp += 10;
 			checkAndUpdateLevel();
 		} else if (attackHits(opponent, dieRoll)) {
@@ -43,30 +48,16 @@ public class Character {
 	}
 
 	private int getLevelBonus() {
-		int levelDieBonus = 0;
-		switch (characterClass) {
-			case FIGHTER:
-				levelDieBonus = level - 1;
-				break;
-			case MONK:
-				for (int i = 1; i <= level; i++)
-					if (i % 2 == 0 || i % 3 == 0)
-						levelDieBonus++;
-				break;
-			default:
-				levelDieBonus = level / 2;
-				break;
-		}
-		return levelDieBonus;
+		return characterClass.levelAttackBonus(level);
 	}
 
 	private int attackModifier() {
-		return characterClass == CharacterClass.ROGUE ? getModifierFor(dexterity) : getModifierFor(strength);
+		// hmm.  a little tricky, this one
+		return characterClass instanceof RogueClass ? getModifierFor(dexterity) : getModifierFor(strength);
 	}
 	
 	private int baseDamage() {
-		int baseDamage = characterClass == CharacterClass.MONK ? 3 : 1;
-		return baseDamage + attackModifier();
+		return characterClass.baseDamage() + attackModifier();
 	}
 	
 	private void checkAndUpdateLevel() {
@@ -80,26 +71,16 @@ public class Character {
 	}
 	
 	private int getHitpointsPerLevel() {
-		return Math.max(baseHp() + getModifierFor(constitution), 1);
+		return Math.max(characterClass.baseHp() + getModifierFor(constitution), 1);
 	}
-	
-	private int baseHp() {
-		switch(characterClass){
-		case FIGHTER: 
-			return 10;
-		case MONK:
-			return 6;
-		default:
-			return 5;
-		}
-	}
-	
+
 	private int getModifierFor(int ability){
 		return ability/2 - 5;
 	}
 	
 	private int armorClassVersus(Character attacker){
-		if (attacker.characterClass == CharacterClass.ROGUE && getModifierFor(dexterity) > 0)
+		// also tricky
+		if (attacker.characterClass instanceof RogueClass && getModifierFor(dexterity) > 0)
 			return armorClass - getModifierFor(dexterity);
 		else 
 			return armorClass;
@@ -115,7 +96,8 @@ public class Character {
 	};
 	
 	public void setAlignment(Alignment alignment){
-		if (characterClass == CharacterClass.ROGUE && alignment == Alignment.GOOD)
+		// also tricky
+		if (characterClass instanceof RogueClass && alignment == Alignment.GOOD)
 			throw new IllegalStateException("Rogues cannot be good!");
 		this.alignment = alignment; //private alignment = one specific to method
 	};
@@ -123,16 +105,6 @@ public class Character {
 	public Alignment getAlignment(){
 		return alignment;
 	};
-	
-	public void setCharacterClass(CharacterClass characterClass) {
-		if (characterClass == CharacterClass.FIGHTER)
-			this.hitPoints = 10;
-		this.characterClass = characterClass;
-	}
-	
-	public CharacterClass getCharacterClass() {
-		return this.characterClass;
-	}
 	
 	public int getStrength(){
 		return strength;
