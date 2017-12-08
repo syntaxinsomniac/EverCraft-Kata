@@ -3,10 +3,12 @@ public class Fighter extends Character {
         super(strength, dexterity, constitution, wisdom, intelligence, charisma);
     }
 
+    @Override
     protected int getLevelBonus() {
         return level - 1;
     }
 
+    @Override
     protected int baseHp() {
         return 10;
     }

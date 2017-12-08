@@ -3,6 +3,7 @@ public class Monk extends Character {
         super(strength, dexterity, constitution, wisdom, intelligence, charisma);
     }
 
+    @Override
     protected int getLevelBonus() {
         int levelDieBonus = 0;
         for (int i = 1; i <= level; i++)
@@ -11,14 +12,17 @@ public class Monk extends Character {
         return levelDieBonus;
     }
 
+    @Override
     protected int baseHp() {
         return 6;
     }
 
+    @Override
     protected int baseDamage() {
         return 3 + attackModifier();
     }
 
+    @Override
     public int getArmorClass() {
         return 10 + getModifierFor(wisdom);
     }
