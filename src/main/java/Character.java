@@ -24,6 +24,18 @@ public class Character {
 		this.hitPoints = this.getHitpointsPerLevel();
 		this.maxHitPoints = this.getHitpointsPerLevel();
 	}
+
+	public Character(int strength, int dexterity, int constitution, int wisdom, int intelligence, int charisma){
+		this.strength = strength;
+		this.dexterity = dexterity;
+		this.constitution = constitution;
+		this.wisdom = wisdom;
+		this.intelligence = intelligence;
+		this.charisma = charisma;
+		this.armorClass = characterClass == CharacterClass.MONK ? (armorClass + getModifierFor(wisdom)) : (armorClass + getModifierFor(dexterity));
+		this.hitPoints = this.getHitpointsPerLevel();
+		this.maxHitPoints = this.getHitpointsPerLevel();
+	}
 	
 	public void attack(Character opponent, int dieRoll){
 		if (dieRoll == 20) {
@@ -42,12 +54,9 @@ public class Character {
 		return dieRoll + getLevelBonus() + attackModifier() >= opponent.armorClassVersus(this);
 	}
 
-	private int getLevelBonus() {
+	protected int getLevelBonus() {
 		int levelDieBonus = 0;
 		switch (characterClass) {
-			case FIGHTER:
-				levelDieBonus = level - 1;
-				break;
 			case MONK:
 				for (int i = 1; i <= level; i++)
 					if (i % 2 == 0 || i % 3 == 0)
@@ -83,10 +92,8 @@ public class Character {
 		return Math.max(baseHp() + getModifierFor(constitution), 1);
 	}
 	
-	private int baseHp() {
+	protected int baseHp() {
 		switch(characterClass){
-		case FIGHTER: 
-			return 10;
 		case MONK:
 			return 6;
 		default:
@@ -123,12 +130,6 @@ public class Character {
 	public Alignment getAlignment(){
 		return alignment;
 	};
-	
-	public void setCharacterClass(CharacterClass characterClass) {
-		if (characterClass == CharacterClass.FIGHTER)
-			this.hitPoints = 10;
-		this.characterClass = characterClass;
-	}
 	
 	public CharacterClass getCharacterClass() {
 		return this.characterClass;
